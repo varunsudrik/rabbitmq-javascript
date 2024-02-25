@@ -1,16 +1,15 @@
 var amqp = require("amqplib");
 
 const sendMessege = async () => {
-  var queue = "hello2";
-  var msg = "Hello ghtrjht";
+  var exchangeName = "logs-1";
+  var msg = process.argv.slice(2).join(" ") || "Hello World!";
 
   const connection = await amqp.connect("amqp://myuser:mypassword@localhost");
   const channel = await connection.createChannel();
-  await channel.assertQueue(queue, {
+  await channel.assertExchange(exchangeName, "fanout", {
     durable: false,
   });
-  await channel.sendToQueue(queue, Buffer.from(msg));
-  await channel.publish();
+  await channel.publish(exchangeName, "", Buffer.from(msg));
   console.log(" [x] Sent %s", msg);
 
   setTimeout(() => {
